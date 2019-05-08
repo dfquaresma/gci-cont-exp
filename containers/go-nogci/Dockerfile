@@ -38,6 +38,8 @@ RUN chown -R app /home/app
 
 USER app
 
+ENV image_url="https://user-images.githubusercontent.com/883386/53553708-ebb88a00-3b46-11e9-9ea8-73c6b7f9dfa1.jpg"
+
 ENV fprocess="./handler"
 EXPOSE 8080
 
