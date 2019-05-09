@@ -32,10 +32,8 @@ import (
 	"image/jpeg"
 	"io"
 	"io/ioutil"
-	"log"
 	"math"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -65,62 +63,27 @@ type DetectionResult struct {
 // Handle a serverless request
 func Handle(req http.Request) ([]byte, error) {
 	before := time.Now()
-	OldHandle([]byte(os.Getenv("image_url")))
+	OldHandle()
 	output := time.Since(before).Nanoseconds()
 	return []byte(fmt.Sprintf("%v", output)), nil
 }
 
+var res, _ = http.Get(strings.TrimSpace(string([]byte(os.Getenv("image_url")))))
+
 // Original pigo serverless handle
-func OldHandle(req []byte) string {
+func OldHandle() string {
 	var (
 		resp  DetectionResult
 		rects []image.Rectangle
-		data  []byte
 		image []byte
 	)
 
-	if val, exists := os.LookupEnv("input_mode"); exists && val == "url" {
-		inputURL := strings.TrimSpace(string(req))
-
-		res, err := http.Get(inputURL)
-		if err != nil {
-			return fmt.Sprintf("Unable to download image file from URI: %s, status %v", inputURL, res.Status)
-		}
-		defer res.Body.Close()
-
-		data, err = ioutil.ReadAll(res.Body)
-		if err != nil {
-			return fmt.Sprintf("Unable to read response body: %s", err)
-		}
-	} else {
-		var decodeError error
-		data, decodeError = base64.StdEncoding.DecodeString(string(req))
-		if decodeError != nil {
-			data = req
-		}
-
-		contentType := http.DetectContentType(req)
-		if contentType != "image/jpeg" && contentType != "image/png" {
-			return fmt.Sprintf("Only jpeg or png images, either raw uncompressed bytes or base64 encoded are acceptable inputs, you uploaded: %s", contentType)
-		}
-	}
-	tmpfile, err := ioutil.TempFile("/tmp", "image")
-	if err != nil {
-		log.Fatalf("Unable to create temporary file: %v", err)
-	}
-	defer os.Remove(tmpfile.Name())
-
-	_, err = io.Copy(tmpfile, bytes.NewBuffer(data))
-	if err != nil {
-		return fmt.Sprintf("Unable to copy the source URI to the destionation file")
-	}
+	tmpfile, _ := ioutil.TempFile("/tmp", "image")
+	//defer os.Remove(tmpfile.Name())
+	data, _ := ioutil.ReadAll(res.Body)
+	_, _ = io.Copy(tmpfile, bytes.NewBuffer(data))
 
 	var output string
-	query, err := url.ParseQuery(os.Getenv("Http_Query"))
-	if err == nil {
-		output = query.Get("output")
-	}
-
 	if val, exists := os.LookupEnv("output_mode"); exists {
 		output = val
 	}
