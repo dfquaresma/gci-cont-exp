@@ -42,7 +42,13 @@ import (
 
 	"github.com/esimov/pigo/core"
 	"github.com/fogleman/gg"
+
+	"runtime/debug"
 )
+
+func init() {
+	debug.SetGCPercent(-1) // Disabling automatic garbage collection.
+}
 
 var dc *gg.Context
 

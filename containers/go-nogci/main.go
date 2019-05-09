@@ -5,18 +5,21 @@
 package main
 
 import (
-	"fmt"
 	"handler/function"
-	"io/ioutil"
-	"log"
+	"net/http"
 	"os"
 )
 
 func main() {
-	input, err := ioutil.ReadAll(os.Stdin)
-	if err != nil {
-		log.Fatalf("Unable to read standard input: %s", err.Error())
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		body, err := function.Handle(*r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Write(body)
+	})
+	if err := http.ListenAndServe(":"+os.Getenv("HANDLER_PORT"), nil); err != nil {
+		panic(err)
 	}
-
-	fmt.Println(function.Handle(input))
 }
