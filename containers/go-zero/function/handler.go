@@ -24,18 +24,13 @@ package function
 
 import (
 	"bytes"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
-	"io"
 	"io/ioutil"
-	"log"
 	"math"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -45,10 +40,6 @@ import (
 
 	"runtime/debug"
 )
-
-func init() {
-	debug.SetGCPercent(-1) // Disabling automatic garbage collection.
-}
 
 var dc *gg.Context
 
@@ -71,96 +62,41 @@ type DetectionResult struct {
 // Handle a serverless request
 func Handle(req http.Request) ([]byte, error) {
 	before := time.Now()
-	OldHandle([]byte(os.Getenv("image_url")))
+	OldHandle()
 	output := time.Since(before).Nanoseconds()
 	return []byte(fmt.Sprintf("%v", output)), nil
 }
 
 // Original pigo serverless handle
-func OldHandle(req []byte) string {
-	var (
-		resp  DetectionResult
-		rects []image.Rectangle
-		data  []byte
-		image []byte
-	)
-
-	if val, exists := os.LookupEnv("input_mode"); exists && val == "url" {
-		inputURL := strings.TrimSpace(string(req))
-
-		res, err := http.Get(inputURL)
-		if err != nil {
-			return fmt.Sprintf("Unable to download image file from URI: %s, status %v", inputURL, res.Status)
-		}
-		defer res.Body.Close()
-
-		data, err = ioutil.ReadAll(res.Body)
-		if err != nil {
-			return fmt.Sprintf("Unable to read response body: %s", err)
-		}
-	} else {
-		var decodeError error
-		data, decodeError = base64.StdEncoding.DecodeString(string(req))
-		if decodeError != nil {
-			data = req
-		}
-
-		contentType := http.DetectContentType(req)
-		if contentType != "image/jpeg" && contentType != "image/png" {
-			return fmt.Sprintf("Only jpeg or png images, either raw uncompressed bytes or base64 encoded are acceptable inputs, you uploaded: %s", contentType)
-		}
-	}
-	tmpfile, err := ioutil.TempFile("/tmp", "image")
-	if err != nil {
-		log.Fatalf("Unable to create temporary file: %v", err)
-	}
-	defer os.Remove(tmpfile.Name())
-
-	_, err = io.Copy(tmpfile, bytes.NewBuffer(data))
-	if err != nil {
-		return fmt.Sprintf("Unable to copy the source URI to the destionation file")
-	}
-
-	var output string
-	query, err := url.ParseQuery(os.Getenv("Http_Query"))
-	if err == nil {
-		output = query.Get("output")
-	}
-
-	if val, exists := os.LookupEnv("output_mode"); exists {
-		output = val
-	}
-
+func OldHandle() string {
+	var image []byte
 	fd := NewFaceDetector("./data/facefinder", 20, 2000, 0.1, 1.1, 0.18)
-	faces, err := fd.DetectFaces(tmpfile.Name())
+	faces, err := fd.DetectFaces(imageToUse)
 
 	if err != nil {
 		return fmt.Sprintf("Error on face detection: %v", err)
 	}
 
-	if output == "image" || output == "json_image" {
-		var err error
-		rects, image, err = fd.DrawFaces(faces, false)
-		if err != nil {
-			return fmt.Sprintf("Error creating image output: %s", err)
-		}
-
-		resp = DetectionResult{
-			Faces:       rects,
-			ImageBase64: base64.StdEncoding.EncodeToString(image),
-		}
-	}
-	if output == "image" {
-		return string(image)
-	}
-
-	j, err := json.Marshal(resp)
+	_, image, err = fd.DrawFaces(faces, false)
 	if err != nil {
-		return fmt.Sprintf("Error encoding output: %s", err)
+		return fmt.Sprintf("Error creating image output: %s", err)
 	}
 
-	// Return face rectangle coordinates
-	return string(j)
+	return string(image)
+}
+
+var imageToUse image.Image
+
+func init() {
+	debug.SetGCPercent(-1) // Disabling automatic garbage collection.
+	var data []byte
+	req := []byte(os.Getenv("image_url"))
+	inputURL := strings.TrimSpace(string(req))
+	res, _ := http.Get(inputURL)
+	defer res.Body.Close()
+	data, _ = ioutil.ReadAll(res.Body)
+	dataReader := bytes.NewBuffer(data)
+	imageToUse, _, _ = image.Decode(dataReader)
 }
 
 // NewFaceDetector initialises the constructor function.
@@ -176,12 +112,8 @@ func NewFaceDetector(cf string, minSize, maxSize int, shf, scf, iou float64) *Fa
 }
 
 // DetectFaces run the detection algorithm over the provided source image.
-func (fd *FaceDetector) DetectFaces(source string) ([]pigo.Detection, error) {
-	src, err := pigo.GetImage(source)
-	if err != nil {
-		return nil, err
-	}
-
+func (fd *FaceDetector) DetectFaces(img image.Image) ([]pigo.Detection, error) {
+	src := pigo.ImgToNRGBA(img)
 	pixels := pigo.RgbToGrayscale(src)
 	cols, rows := src.Bounds().Max.X, src.Bounds().Max.Y
 
