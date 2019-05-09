@@ -24,13 +24,10 @@ package function
 
 import (
 	"bytes"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
-	"io"
 	"io/ioutil"
 	"math"
 	"net/http"
@@ -68,56 +65,35 @@ func Handle(req http.Request) ([]byte, error) {
 	return []byte(fmt.Sprintf("%v", output)), nil
 }
 
-var res, _ = http.Get(strings.TrimSpace(string([]byte(os.Getenv("image_url")))))
-
 // Original pigo serverless handle
 func OldHandle() string {
-	var (
-		resp  DetectionResult
-		rects []image.Rectangle
-		image []byte
-	)
-
-	tmpfile, _ := ioutil.TempFile("/tmp", "image")
-	//defer os.Remove(tmpfile.Name())
-	data, _ := ioutil.ReadAll(res.Body)
-	_, _ = io.Copy(tmpfile, bytes.NewBuffer(data))
-
-	var output string
-	if val, exists := os.LookupEnv("output_mode"); exists {
-		output = val
-	}
-
+	var image []byte
 	fd := NewFaceDetector("./data/facefinder", 20, 2000, 0.1, 1.1, 0.18)
-	faces, err := fd.DetectFaces(tmpfile.Name())
+	faces, err := fd.DetectFaces(imageToUse)
 
 	if err != nil {
 		return fmt.Sprintf("Error on face detection: %v", err)
 	}
 
-	if output == "image" || output == "json_image" {
-		var err error
-		rects, image, err = fd.DrawFaces(faces, false)
-		if err != nil {
-			return fmt.Sprintf("Error creating image output: %s", err)
-		}
-
-		resp = DetectionResult{
-			Faces:       rects,
-			ImageBase64: base64.StdEncoding.EncodeToString(image),
-		}
-	}
-	if output == "image" {
-		return string(image)
-	}
-
-	j, err := json.Marshal(resp)
+	_, image, err = fd.DrawFaces(faces, false)
 	if err != nil {
-		return fmt.Sprintf("Error encoding output: %s", err)
+		return fmt.Sprintf("Error creating image output: %s", err)
 	}
 
-	// Return face rectangle coordinates
-	return string(j)
+	return string(image)
+}
+
+var imageToUse image.Image
+
+func init() {
+	var data []byte
+	req := []byte(os.Getenv("image_url"))
+	inputURL := strings.TrimSpace(string(req))
+	res, _ := http.Get(inputURL)
+	defer res.Body.Close()
+	data, _ = ioutil.ReadAll(res.Body)
+	dataReader := bytes.NewBuffer(data)
+	imageToUse, _, _ = image.Decode(dataReader)
 }
 
 // NewFaceDetector initialises the constructor function.
@@ -133,12 +109,8 @@ func NewFaceDetector(cf string, minSize, maxSize int, shf, scf, iou float64) *Fa
 }
 
 // DetectFaces run the detection algorithm over the provided source image.
-func (fd *FaceDetector) DetectFaces(source string) ([]pigo.Detection, error) {
-	src, err := pigo.GetImage(source)
-	if err != nil {
-		return nil, err
-	}
-
+func (fd *FaceDetector) DetectFaces(img image.Image) ([]pigo.Detection, error) {
+	src := pigo.ImgToNRGBA(img)
 	pixels := pigo.RgbToGrayscale(src)
 	cols, rows := src.Bounds().Max.X, src.Bounds().Max.Y
 
