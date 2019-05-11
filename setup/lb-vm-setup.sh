@@ -27,3 +27,4 @@ apt install -y maven
 git clone https://github.com/dfquaresma/YCSB
 cd YCSB
 mvn -pl com.yahoo.ycsb:rest-binding -am clean package
+apt install -y python
