@@ -23,8 +23,13 @@ wget http://www2.lsd.ufcg.edu.br/~davidfq/gci-setup/nginx.conf
 mv nginx.conf /etc/nginx/
 
 # Download YCSB
-apt install -y maven
 git clone https://github.com/dfquaresma/YCSB
+# Download dependencies
+apt install -y maven
+apt install -y python
+# Compile only what is needed.
 cd YCSB
 mvn -pl com.yahoo.ycsb:rest-binding -am clean package
-apt install -y python
+# Removing root permissions.
+cd ..
+chown -R ubuntu YCSB/
