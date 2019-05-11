@@ -42,7 +42,7 @@ USER app
 ENV image_url="https://user-images.githubusercontent.com/883386/53553708-ebb88a00-3b46-11e9-9ea8-73c6b7f9dfa1.jpg"
 
 ENV mode="http"
-ENV YOUNG_GEN_SIZE_B="256000000"
+ENV YOUNG_GEN_SIZE_B="536870912"
 ENV HANDLER_PORT="8083"
 ENV PROXY_PORT="8082"
 ENV upstream_url="http://127.0.0.1:${PROXY_PORT}"
