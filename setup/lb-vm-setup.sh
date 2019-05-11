@@ -26,4 +26,4 @@ mv nginx.conf /etc/nginx/
 apt install -y maven
 git clone https://github.com/dfquaresma/YCSB
 cd YCSB
-mvn clean package
+mvn -pl com.yahoo.ycsb:rest-binding -am clean package
