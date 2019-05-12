@@ -13,33 +13,5 @@ source("functions.R")
 
 # GO-NOGCI Results
 ```{r}
-gonogci = read.csv("./results/gonogci-access1.log", sep=";",header=T, dec=".")
-gonogci = tail(gonogci, -100)
-gonogci.req <- as.vector(filter(gonogci, status == 200)$request_time)
-gonogci.err <- nrow(filter(gonogci, status != 200))
-```
-
-# GO-GCI Results
-```{r}
-gogci = read.csv("./results/gogci-access1.log", sep=";",header=T, dec=".")
-gogci = tail(gogci, -100)
-gogci.req <- as.vector(filter(gogci, status == 200)$request_time)
-gogci.err <- nrow(filter(gogci, status != 200))
-```
-
-# GO-ZERO Results
-```{r}
-gozero = read.csv("./results/gozero-access1.log", sep=";",header=T, dec=".")
-gozero = tail(gozero, -100)
-gozero.req <- as.vector(filter(gozero, status == 200)$request_time)
-gozero.err <- nrow(filter(gozero, status != 200))
-```
-
-# Print Table
-```{r}
-print_summary_table(
-  gonogci.req, gonogci.err, 
-  gogci.req, gogci.err, 
-  gozero.req, gozero.err
-)
+print_summary_table(path="./results/", runtime_language="go", experiment="1", round="1")
 ```
