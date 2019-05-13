@@ -43,7 +43,7 @@ var dc *gg.Context
 
 // FaceDetector struct contains Pigo face detector general settings.
 type FaceDetector struct {
-	cascadeFile  string
+	cascadeFile  []byte
 	minSize      int
 	maxSize      int
 	shiftFactor  float64
@@ -58,7 +58,7 @@ type DetectionResult struct {
 }
 
 var imageToUse image.Image
-var cascadeFile []byte
+var cascadeFileToUse []byte
 
 func init() {
 	debug.SetGCPercent(-1) // Disabling automatic garbage collection.
@@ -72,7 +72,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	cascadeFile, err = ioutil.ReadFile("./data/facefinder")
+	cascadeFileToUse, err = ioutil.ReadFile("./data/facefinder")
 	if err != nil {
 		panic(err)
 	}
@@ -80,31 +80,25 @@ func init() {
 
 // Handle a serverless request
 func Handle(req http.Request) ([]byte, error) {
-	OldHandle()
+	fd := NewFaceDetector(cascadeFileToUse, 20, 2000, 0.1, 1.1, 0.18)
+
+	faces, err := fd.DetectFaces(imageToUse)
+	if err != nil {
+		return []byte(fmt.Sprintf("Error on face detection: %v", err)), err
+	}
+
+	_, _, err = fd.DrawFaces(faces, false)
+	if err != nil {
+		return []byte(fmt.Sprintf("Error creating image output: %s", err)), err
+	}
+
 	return nil, nil
 }
 
-// Original pigo serverless handle
-func OldHandle() string {
-	var image []byte
-	fd := NewFaceDetector(20, 2000, 0.1, 1.1, 0.18)
-	faces, err := fd.DetectFaces(imageToUse)
-
-	if err != nil {
-		return fmt.Sprintf("Error on face detection: %v", err)
-	}
-
-	_, image, err = fd.DrawFaces(faces, false)
-	if err != nil {
-		return fmt.Sprintf("Error creating image output: %s", err)
-	}
-
-	return string(image)
-}
-
 // NewFaceDetector initialises the constructor function.
-func NewFaceDetector(minSize, maxSize int, shf, scf, iou float64) *FaceDetector {
+func NewFaceDetector(cf []byte, minSize, maxSize int, shf, scf, iou float64) *FaceDetector {
 	return &FaceDetector{
+		cascadeFile:  cf,
 		minSize:      minSize,
 		maxSize:      maxSize,
 		shiftFactor:  shf,
@@ -138,7 +132,7 @@ func (fd *FaceDetector) DetectFaces(img image.Image) ([]pigo.Detection, error) {
 	pigo := pigo.NewPigo()
 	// Unpack the binary file. This will return the number of cascade trees,
 	// the tree depth, the threshold and the prediction from tree's leaf nodes.
-	classifier, err := pigo.Unpack(cascadeFile)
+	classifier, err := pigo.Unpack(fd.cascadeFile)
 	if err != nil {
 		return nil, err
 	}
