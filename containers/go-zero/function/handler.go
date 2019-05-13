@@ -104,7 +104,7 @@ func OldHandle() string {
 }
 
 // NewFaceDetector initialises the constructor function.
-func NewFaceDetector(, minSize, maxSize int, shf, scf, iou float64) *FaceDetector {
+func NewFaceDetector(minSize, maxSize int, shf, scf, iou float64) *FaceDetector {
 	return &FaceDetector{
 		minSize:      minSize,
 		maxSize:      maxSize,
