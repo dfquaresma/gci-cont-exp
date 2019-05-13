@@ -1,5 +1,5 @@
 ---
-title: ""
+title: "SOCC Experiments"
 author: "David Ferreira Quaresma (david.quaresma@ccc.ufcg.edu.br)"
 date: "May, 2019"
 output: pdf_document
@@ -14,4 +14,9 @@ source("functions.R")
 # Table: Go Experiment 1 Round 1
 ```{r}
 print_summary_table(path="./results/", runtime_language="go", experiment="1", round="1")
+```
+
+# Table: Go Experiment 1 Round 2
+```{r}
+print_summary_table(path="./results/", runtime_language="go", experiment="1", round="2")
 ```
