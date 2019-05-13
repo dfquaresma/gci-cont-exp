@@ -32,7 +32,6 @@ import (
 	"math"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/esimov/pigo/core"
 	"github.com/fogleman/gg"
@@ -192,17 +191,7 @@ func (fd *FaceDetector) DrawFaces(faces []pigo.Detection, isCircle bool) ([]imag
 	}
 
 	img := dc.Image()
-
-	filename := fmt.Sprintf("/tmp/%d.jpg", time.Now().UnixNano())
-
-	output, err := os.OpenFile(filename, os.O_CREATE|os.O_RDWR, 0755)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer os.Remove(filename)
-
-	jpeg.Encode(output, img, &jpeg.Options{Quality: 100})
-
-	rf, err := ioutil.ReadFile(filename)
-	return rects, rf, err
+	buf := new(bytes.Buffer)
+	err := jpeg.Encode(buf, img, nil)
+	return rects, buf.Bytes(), err
 }
