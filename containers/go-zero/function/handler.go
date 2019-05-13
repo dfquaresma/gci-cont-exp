@@ -80,8 +80,8 @@ func init() {
 
 // Handle a serverless request
 func Handle(req http.Request) ([]byte, error) {
-	output := OldHandle()
-	return []byte(fmt.Sprintf("%v", output)), nil
+	OldHandle()
+	return nil, nil
 }
 
 // Original pigo serverless handle
