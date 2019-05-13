@@ -33,7 +33,7 @@ table_it <- function(runtime_language, nogcireq, nogcierr, gcireq, gcierr, zeror
     cat("\n")
   }
   stats(nogcireq, paste(runtime_language, "NG", sep=""))
-  stats(gcireq, paste(runtime_language, " G", sep=""))
+  stats(gcireq, paste(runtime_language, "G ", sep=""))
   stats(zeroreq, paste(runtime_language, "ZC", sep=""))
 }
 
