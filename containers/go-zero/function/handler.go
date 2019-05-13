@@ -32,7 +32,6 @@ import (
 	"math"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/esimov/pigo/core"
@@ -61,9 +60,7 @@ type DetectionResult struct {
 
 // Handle a serverless request
 func Handle(req http.Request) ([]byte, error) {
-	before := time.Now()
-	OldHandle()
-	output := time.Since(before).Nanoseconds()
+	output := OldHandle()
 	return []byte(fmt.Sprintf("%v", output)), nil
 }
 
@@ -89,14 +86,16 @@ var imageToUse image.Image
 
 func init() {
 	debug.SetGCPercent(-1) // Disabling automatic garbage collection.
-	var data []byte
-	req := []byte(os.Getenv("image_url"))
-	inputURL := strings.TrimSpace(string(req))
-	res, _ := http.Get(inputURL)
-	defer res.Body.Close()
-	data, _ = ioutil.ReadAll(res.Body)
+	image_path := os.Getenv("image_path")
+	data, err := ioutil.ReadFile(image_path)
+	if err != nil {
+		panic(err)
+	}
 	dataReader := bytes.NewBuffer(data)
-	imageToUse, _, _ = image.Decode(dataReader)
+	imageToUse, _, err = image.Decode(dataReader)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // NewFaceDetector initialises the constructor function.
