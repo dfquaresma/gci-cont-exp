@@ -58,6 +58,27 @@ type DetectionResult struct {
 	ImageBase64 string
 }
 
+var imageToUse image.Image
+var cascadeFile []byte
+
+func init() {
+	debug.SetGCPercent(-1) // Disabling automatic garbage collection.
+	image_path := os.Getenv("image_path")
+	data, err := ioutil.ReadFile(image_path)
+	if err != nil {
+		panic(err)
+	}
+	dataReader := bytes.NewBuffer(data)
+	imageToUse, _, err = image.Decode(dataReader)
+	if err != nil {
+		panic(err)
+	}
+	cascadeFile, err = ioutil.ReadFile("./data/facefinder")
+	if err != nil {
+		panic(err)
+	}
+}
+
 // Handle a serverless request
 func Handle(req http.Request) ([]byte, error) {
 	output := OldHandle()
@@ -67,7 +88,7 @@ func Handle(req http.Request) ([]byte, error) {
 // Original pigo serverless handle
 func OldHandle() string {
 	var image []byte
-	fd := NewFaceDetector("./data/facefinder", 20, 2000, 0.1, 1.1, 0.18)
+	fd := NewFaceDetector(20, 2000, 0.1, 1.1, 0.18)
 	faces, err := fd.DetectFaces(imageToUse)
 
 	if err != nil {
@@ -82,26 +103,9 @@ func OldHandle() string {
 	return string(image)
 }
 
-var imageToUse image.Image
-
-func init() {
-	debug.SetGCPercent(-1) // Disabling automatic garbage collection.
-	image_path := os.Getenv("image_path")
-	data, err := ioutil.ReadFile(image_path)
-	if err != nil {
-		panic(err)
-	}
-	dataReader := bytes.NewBuffer(data)
-	imageToUse, _, err = image.Decode(dataReader)
-	if err != nil {
-		panic(err)
-	}
-}
-
 // NewFaceDetector initialises the constructor function.
-func NewFaceDetector(cf string, minSize, maxSize int, shf, scf, iou float64) *FaceDetector {
+func NewFaceDetector(, minSize, maxSize int, shf, scf, iou float64) *FaceDetector {
 	return &FaceDetector{
-		cascadeFile:  cf,
 		minSize:      minSize,
 		maxSize:      maxSize,
 		shiftFactor:  shf,
@@ -130,11 +134,6 @@ func (fd *FaceDetector) DetectFaces(img image.Image) ([]pigo.Detection, error) {
 			Cols:   cols,
 			Dim:    cols,
 		},
-	}
-
-	cascadeFile, err := ioutil.ReadFile(fd.cascadeFile)
-	if err != nil {
-		return nil, err
 	}
 
 	pigo := pigo.NewPigo()
