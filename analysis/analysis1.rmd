@@ -11,7 +11,7 @@ require(ggplot2)
 source("functions.R")
 ```
 
-# GO-NOGCI Results
+# Table: Go Experiment 1 Round 1
 ```{r}
 print_summary_table(path="./results/", runtime_language="go", experiment="1", round="1")
 ```
