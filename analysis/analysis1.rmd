@@ -8,14 +8,15 @@ output: pdf_document
 ```{r}
 require(dplyr)
 require(ggplot2)
+require(quantileCI)
 
-# nogcireq: vetor ou lista de tempos de resposta das requisições com NOGCI
-# nogcierr: número de requisições que falharam
-# gcireq: vetor ou lista de tempos de resposta das requisições com GCI
-# gcierr: número de requisições que falharam no GCI
-# zeroreq: vetor ou lista de tempos de resposta das requisições com Zero Coletas
-# zeroerr: número de requisições que falharam no Zero Coletas
-table_it <- function(runtime_language, nogcireq, nogcierr, gcireq, gcierr, zeroreq, zeroerr) {
+print_summary_table <- function(runtime_language, nogci, gci, zero) {
+  nogcireq <- (nogci %>% filter(status == 200))$request_time
+  nogcierr <- (nogci %>% filter(status != 200))$request_time
+  gcireq <- (gci %>% filter(status == 200))$request_time
+  gcierr <- (gci %>% filter(status != 200))$request_time
+  zeroreq <- (zero %>% filter(status == 200))$request_time
+  zeroerr <- (zero %>% filter(status != 200))$request_time
   cat("#fail:", paste(runtime_language, "NG:", sep=""), nogcierr, " | ", 
       paste(runtime_language, "G:", sep=""), gcierr, " | ", 
       paste(runtime_language, "ZC:", sep=""), zeroerr,  "\n")
@@ -23,12 +24,11 @@ table_it <- function(runtime_language, nogcireq, nogcierr, gcireq, gcierr, zeror
       paste(runtime_language, "G:", sep=""), NROW(gcireq), " | ", 
       paste(runtime_language, "ZC:", sep=""), NROW(zeroreq), "\n")
   stats <- function(df, tag) {
-    p50 = quantile(df, 0.5)
-    p95 = quantile(df, 0.95)
-    p99 = quantile(df, 0.99)
-    p999 = quantile(df, 0.999)
-    p9999 = quantile(df, 0.9999)
-    p99999 = quantile(df, 0.99999)
+    p50 = quantileCI::quantile_confint_nyblom(df, 0.5)
+    p95 = quantileCI::quantile_confint_nyblom(df, 0.95)
+    p99 = quantileCI::quantile_confint_nyblom(df, 0.99)
+    p999 = quantileCI::quantile_confint_nyblom(df, 0.999)
+    p9999 = quantileCI::quantile_confint_nyblom(df, 0.9999)
     
     cat("Latency(ms) ", tag, " ")
     cat("avg:", signif(t.test(df)$conf.int, digits = 2), " | ")
@@ -37,8 +37,7 @@ table_it <- function(runtime_language, nogcireq, nogcierr, gcireq, gcierr, zeror
     cat("99:", signif(p99, digits = 4), " | ")
     cat("99.9:", signif(p999, digits = 4), " | ")
     cat("99.99:", signif(p9999, digits = 4), " | ") 
-    cat("99.999:", signif(p99999, digits = 4), " | ") 
-    cat("Dist.Tail.:", signif(p99999-p50, digits = 4)) 
+    cat("Dist.Tail.:", signif(p9999-p50, digits = 4)) 
     cat("\n")
   }
   stats(nogcireq, paste(runtime_language, "NG", sep=""))
@@ -46,49 +45,31 @@ table_it <- function(runtime_language, nogcireq, nogcierr, gcireq, gcierr, zeror
   stats(zeroreq, paste(runtime_language, "ZC", sep=""))
 }
 
-print_summary_table <- function(path, runtime_language, experiment, round) {
-  nogci_path = paste(path, runtime_language, "nogci-access-e", experiment, "r", round, ".log", sep="")
-  gci_path = paste(path, runtime_language, "gci-access-e", experiment, "r", round, ".log", sep="")
-  zero_path = paste(path, runtime_language, "zero-access-e", experiment, "r", round, ".log", sep="")
-    
-  nogci = read.csv(nogci_path, sep=";",header=T, dec=".")
-  nogci = tail(nogci, -100)
-  nogci.req <- as.vector(filter(nogci, status == 200)$request_time) * 1000
-  nogci.err <- nrow(filter(nogci, status != 200))
-  
-  gci = read.csv(gci_path, sep=";",header=T, dec=".")
-  gci = tail(gci, -100)
-  gci.req <- as.vector(filter(gci, status == 200)$request_time) * 1000
-  gci.err <- nrow(filter(gci, status != 200))
-  
-  zero = read.csv(zero_path, sep=";",header=T, dec=".")
-  zero = tail(zero, -100)
-  zero.req <- as.vector(filter(zero, status == 200)$request_time) * 1000
-  zero.err <- nrow(filter(zero, status != 200))
-  
-  table_it(
-    runtime_language,
-    nogci.req, nogci.err, 
-    gci.req, gci.err, 
-    zero.req, zero.err
-  )  
+path <- "./results/"
+
+read.al <- function(runtime_language, type, round) {
+  p <- paste(path, runtime_language, type, "-access-e1", "r", round, ".log", sep="")
+  df <- read.csv(p, sep=";",header=T, dec=".")
+  df$request_time <- df$request_time * 1000
+  return(tail(df, -100))
 }
-```
 
-# Table: Go Experiment 1 Round 1
-```{r}
-print_summary_table(path="./results/", runtime_language="go", experiment="1", round="3")
-```
+gci <- rbind(
+  read.al("go", "gci", "3"),
+  read.al("go", "gci", "4")
+)
 
-# Table: Go Experiment 1 Round 2
-```{r}
-print_summary_table(path="./results/", runtime_language="go", experiment="1", round="2")
-```
+nogci <- rbind(
+  read.al("go", "nogci", "3"),
+  read.al("go", "nogci", "4")
+)
 
-<<<<<<< Updated upstream
-# Table: Go Experiment 1 Round 3
-```{r}
-print_summary_table(path="./results/", runtime_language="go", experiment="1", round="3")
+zero <- rbind(
+  read.al("go", "zero", "3"),
+  read.al("go", "zero", "4")
+)
 ```
-=======
->>>>>>> Stashed changes
+# Table: Go Experiment
+```{r}
+print_summary_table("go", nogci,  gci, zero)  
+```
