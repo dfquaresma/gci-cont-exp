@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	debug.SetGCPercent(-1) // Disabling automatic garbage collection.
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		body, err := function.Handle(*r)
 		if err != nil {
