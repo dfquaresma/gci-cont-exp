@@ -12,11 +12,11 @@ require(quantileCI)
 
 print_summary_table <- function(runtime_language, nogci, gci, zero) {
   nogcireq <- (nogci %>% filter(status == 200))$request_time
-  nogcierr <- (nogci %>% filter(status != 200))$request_time
+  nogcierr <- NROW(nogci %>% filter(status != 200))
   gcireq <- (gci %>% filter(status == 200))$request_time
-  gcierr <- (gci %>% filter(status != 200))$request_time
+  gcierr <- NROW(gci %>% filter(status != 200))
   zeroreq <- (zero %>% filter(status == 200))$request_time
-  zeroerr <- (zero %>% filter(status != 200))$request_time
+  zeroerr <- NROW(zero %>% filter(status != 200))
   cat("#fail:", paste(runtime_language, "NG:", sep=""), nogcierr, " | ", 
       paste(runtime_language, "G:", sep=""), gcierr, " | ", 
       paste(runtime_language, "ZC:", sep=""), zeroerr,  "\n")
