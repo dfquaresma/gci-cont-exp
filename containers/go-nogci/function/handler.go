@@ -32,8 +32,6 @@ import (
 	"math"
 	"net/http"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/esimov/pigo/core"
 	"github.com/fogleman/gg"
@@ -43,7 +41,7 @@ var dc *gg.Context
 
 // FaceDetector struct contains Pigo face detector general settings.
 type FaceDetector struct {
-	cascadeFile  string
+	cascadeFile  []byte
 	minSize      int
 	maxSize      int
 	shiftFactor  float64
@@ -57,47 +55,45 @@ type DetectionResult struct {
 	ImageBase64 string
 }
 
-// Handle a serverless request
-func Handle(req http.Request) ([]byte, error) {
-	before := time.Now()
-	OldHandle()
-	output := time.Since(before).Nanoseconds()
-	return []byte(fmt.Sprintf("%v", output)), nil
-}
-
-// Original pigo serverless handle
-func OldHandle() string {
-	var image []byte
-	fd := NewFaceDetector("./data/facefinder", 20, 2000, 0.1, 1.1, 0.18)
-	faces, err := fd.DetectFaces(imageToUse)
-
-	if err != nil {
-		return fmt.Sprintf("Error on face detection: %v", err)
-	}
-
-	_, image, err = fd.DrawFaces(faces, false)
-	if err != nil {
-		return fmt.Sprintf("Error creating image output: %s", err)
-	}
-
-	return string(image)
-}
-
 var imageToUse image.Image
+var cascadeFileToUse []byte
 
 func init() {
-	var data []byte
-	req := []byte(os.Getenv("image_url"))
-	inputURL := strings.TrimSpace(string(req))
-	res, _ := http.Get(inputURL)
-	defer res.Body.Close()
-	data, _ = ioutil.ReadAll(res.Body)
+	image_path := os.Getenv("image_path")
+	data, err := ioutil.ReadFile(image_path)
+	if err != nil {
+		panic(err)
+	}
 	dataReader := bytes.NewBuffer(data)
-	imageToUse, _, _ = image.Decode(dataReader)
+	imageToUse, _, err = image.Decode(dataReader)
+	if err != nil {
+		panic(err)
+	}
+	cascadeFileToUse, err = ioutil.ReadFile("./data/facefinder")
+	if err != nil {
+		panic(err)
+	}
+}
+
+// Handle a serverless request
+func Handle(req http.Request) ([]byte, error) {
+	fd := NewFaceDetector(cascadeFileToUse, 20, 2000, 0.1, 1.1, 0.18)
+
+	faces, err := fd.DetectFaces(imageToUse)
+	if err != nil {
+		return []byte(fmt.Sprintf("Error on face detection: %v", err)), err
+	}
+
+	_, _, err = fd.DrawFaces(faces, false)
+	if err != nil {
+		return []byte(fmt.Sprintf("Error creating image output: %s", err)), err
+	}
+
+	return nil, nil
 }
 
 // NewFaceDetector initialises the constructor function.
-func NewFaceDetector(cf string, minSize, maxSize int, shf, scf, iou float64) *FaceDetector {
+func NewFaceDetector(cf []byte, minSize, maxSize int, shf, scf, iou float64) *FaceDetector {
 	return &FaceDetector{
 		cascadeFile:  cf,
 		minSize:      minSize,
@@ -130,15 +126,10 @@ func (fd *FaceDetector) DetectFaces(img image.Image) ([]pigo.Detection, error) {
 		},
 	}
 
-	cascadeFile, err := ioutil.ReadFile(fd.cascadeFile)
-	if err != nil {
-		return nil, err
-	}
-
 	pigo := pigo.NewPigo()
 	// Unpack the binary file. This will return the number of cascade trees,
 	// the tree depth, the threshold and the prediction from tree's leaf nodes.
-	classifier, err := pigo.Unpack(cascadeFile)
+	classifier, err := pigo.Unpack(fd.cascadeFile)
 	if err != nil {
 		return nil, err
 	}
@@ -191,17 +182,7 @@ func (fd *FaceDetector) DrawFaces(faces []pigo.Detection, isCircle bool) ([]imag
 	}
 
 	img := dc.Image()
-
-	filename := fmt.Sprintf("/tmp/%d.jpg", time.Now().UnixNano())
-
-	output, err := os.OpenFile(filename, os.O_CREATE|os.O_RDWR, 0755)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer os.Remove(filename)
-
-	jpeg.Encode(output, img, &jpeg.Options{Quality: 100})
-
-	rf, err := ioutil.ReadFile(filename)
-	return rects, rf, err
+	buf := new(bytes.Buffer)
+	err := jpeg.Encode(buf, img, nil)
+	return rects, buf.Bytes(), err
 }

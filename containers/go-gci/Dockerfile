@@ -39,7 +39,7 @@ RUN chown -R app /home/app
 
 USER app
 
-ENV image_url="https://user-images.githubusercontent.com/883386/53553708-ebb88a00-3b46-11e9-9ea8-73c6b7f9dfa1.jpg"
+ENV image_path="/home/app/samples/nasa.jpg"
 
 ENV mode="http"
 ENV YOUNG_GEN_SIZE_B="536870912"
