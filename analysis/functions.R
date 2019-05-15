@@ -41,21 +41,21 @@ print_summary_table <- function(path, runtime_language, experiment, round) {
   nogci_path = paste(path, runtime_language, "nogci-access-e", experiment, "r", round, ".log", sep="")
   gci_path = paste(path, runtime_language, "gci-access-e", experiment, "r", round, ".log", sep="")
   zero_path = paste(path, runtime_language, "zero-access-e", experiment, "r", round, ".log", sep="")
-    
+  
   nogci = read.csv(nogci_path, sep=";",header=T, dec=".")
-  nogci = tail(gonogci, -100)
-  nogci.req <- as.vector(filter(gonogci, status == 200)$request_time) * 1000
-  nogci.err <- nrow(filter(gonogci, status != 200))
+  nogci = tail(nogci, -100)
+  nogci.req <- as.vector(filter(nogci, status == 200)$request_time) * 1000
+  nogci.err <- nrow(filter(nogci, status != 200))
   
   gci = read.csv(gci_path, sep=";",header=T, dec=".")
-  gci = tail(gogci, -100)
-  gci.req <- as.vector(filter(gogci, status == 200)$request_time) * 1000
-  gci.err <- nrow(filter(gogci, status != 200))
+  gci = tail(gci, -100)
+  gci.req <- as.vector(filter(gci, status == 200)$request_time) * 1000
+  gci.err <- nrow(filter(gci, status != 200))
   
   zero = read.csv(zero_path, sep=";",header=T, dec=".")
-  zero = tail(gozero, -100)
-  zero.req <- as.vector(filter(gozero, status == 200)$request_time) * 1000
-  zero.err <- nrow(filter(gozero, status != 200))
+  zero = tail(zero, -100)
+  zero.req <- as.vector(filter(zero, status == 200)$request_time) * 1000
+  zero.err <- nrow(filter(zero, status != 200))
   
   table_it(
     runtime_language,
