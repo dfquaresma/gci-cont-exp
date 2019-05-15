@@ -23,3 +23,9 @@ systemctl enable docker
 
 # Download experiment's repository
 git clone https://github.com/dfquaresma/socc19
+cd /home/ubuntu/socc19/containers/go-gci
+docker build -t image-gogci . 
+cd /home/ubuntu/socc19/containers/go-nogci
+docker build -t image-gonogci . 
+cd /home/ubuntu/socc19/containers/go-zero
+docker build -t image-gozero . 
