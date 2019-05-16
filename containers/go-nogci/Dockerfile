@@ -1,17 +1,35 @@
-FROM golang:1.10.4-alpine3.8 as builder
+FROM golang:1.11-alpine3.9 as builder
 
 # Allows you to add additional packages via build-arg
 ARG ADDITIONAL_PACKAGE
 ARG CGO_ENABLED=0
 ARG WATCHDOG_VERSION=0.5.1
 
-RUN apk --no-cache add curl ${ADDITIONAL_PACKAGE} \
-    && echo "Pulling watchdog binary from Github." \
-    && curl -sSL https://github.com/openfaas-incubator/of-watchdog/releases/download/$WATCHDOG_VERSION/of-watchdog > /usr/bin/fwatchdog \
-    && chmod +x /usr/bin/fwatchdog \
-    && apk del curl --no-cache
+RUN mkdir /handler
+WORKDIR /handler
 
-WORKDIR /go/src/handler
+RUN apk --no-cache add curl git ${ADDITIONAL_PACKAGE} \
+    && echo "Pulling watchdog binary from Github." \
+    && curl -sSL https://github.com/openfaas-incubator/of-watchdog/releases/download/$WATCHDOG_VERSION/of-watchdog > /handler/fwatchdog \
+    && chmod +x /handler/fwatchdog
+
+# Force the go compiler to use modules
+ENV GO111MODULE=on
+ 
+# We want to populate the module cache based on the go.{mod,sum} files.
+COPY go.mod .
+COPY go.sum .
+ 
+#This is the ‘magic’ step that will download all the dependencies that are specified in 
+# the go.mod and go.sum file.
+# Because of how the layer caching system works in Docker, the  go mod download 
+# command will _ only_ be re-run when the go.mod or go.sum file change 
+# (or when we add another docker instruction this line)
+RUN go mod download
+
+# Removing pre-installed packages.
+RUN apk del curl git --no-cache
+
 COPY . .
 
 # Run a gofmt and exclude all vendored code.
@@ -21,7 +39,7 @@ RUN CGO_ENABLED=${CGO_ENABLED} GOOS=linux \
     go build --ldflags "-s -w" -a -installsuffix cgo -o handler . && \
     go test $(go list ./... | grep -v /vendor/) -cover
 
-FROM alpine:3.8
+FROM alpine:3.9
 RUN apk --no-cache add ca-certificates
 
 # Add non root user
@@ -30,15 +48,16 @@ RUN mkdir -p /home/app
 
 WORKDIR /home/app
 
-COPY --from=builder /usr/bin/fwatchdog         .
-COPY --from=builder /go/src/handler/function/  .
-COPY --from=builder /go/src/handler/handler    .
+COPY --from=builder /handler/fwatchdog         .
+COPY --from=builder /handler/function/  .
+COPY --from=builder /handler/handler    .
 
 RUN chown -R app /home/app
 
 USER app
 
 ENV image_path="/home/app/samples/nasa.jpg"
+ENV cascade_file="/home/app/data/facefinder"
 
 ENV mode="http"
 ENV HANDLER_PORT="8082"

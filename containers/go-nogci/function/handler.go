@@ -33,6 +33,7 @@ import (
 	"net/http"
 	"os"
 
+	pigo "github.com/esimov/pigo/core"
 	"github.com/fogleman/gg"
 )
 
@@ -55,14 +56,15 @@ type DetectionResult struct {
 }
 
 var imageData []byte
-var cascadeFileToUse []byte
+var cascadeFile []byte
 
 func init() {
-	imageData, err := ioutil.ReadFile(os.Getenv("image_path"))
+	var err error
+	imageData, err = ioutil.ReadFile(os.Getenv("image_path"))
 	if err != nil {
 		panic(err)
 	}
-	cascadeFileToUse, err = ioutil.ReadFile("./data/facefinder")
+	cascadeFile, err = ioutil.ReadFile(os.Getenv("cascade_file"))
 	if err != nil {
 		panic(err)
 	}
@@ -71,13 +73,14 @@ func init() {
 // Handle a serverless request
 func Handle(req http.Request) ([]byte, error) {
 	// Create face detector.
-	cf := make([]byte, len(cascadeFileToUse))
-	copy(cf, cascadeFileToUse)
+	cf := make([]byte, len(cascadeFile))
+	copy(cf, cascadeFile)
 	fd := NewFaceDetector(cf, 20, 2000, 0.1, 1.1, 0.18)
 
 	// Detect Faces.
 	id := make([]byte, len(imageData))
-	i, _, err = image.Decode(bytes.NewBuffer(id))
+	copy(id, imageData)
+	i, _, err := image.Decode(bytes.NewBuffer(id))
 	if err != nil {
 		panic(fmt.Sprintf("Error on face detection: %v", err))
 	}
