@@ -5,12 +5,15 @@
 package main
 
 import (
-	"handler/function"
 	"net/http"
 	"os"
+	"runtime/debug"
+
+	"github.com/dfquaresma/socc19/zero/function"
 )
 
 func main() {
+	debug.SetGCPercent(-1) // Disabling automatic garbage collection.
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		body, err := function.Handle(*r)
 		if err != nil {

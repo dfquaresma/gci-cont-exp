@@ -33,10 +33,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/esimov/pigo/core"
+	pigo "github.com/esimov/pigo/core"
 	"github.com/fogleman/gg"
-
-	"runtime/debug"
 )
 
 var dc *gg.Context
@@ -57,22 +55,16 @@ type DetectionResult struct {
 	ImageBase64 string
 }
 
-var imageToUse image.Image
-var cascadeFileToUse []byte
+var imageData []byte
+var cascadeFile []byte
 
 func init() {
-	debug.SetGCPercent(-1) // Disabling automatic garbage collection.
-	image_path := os.Getenv("image_path")
-	data, err := ioutil.ReadFile(image_path)
+	var err error
+	imageData, err = ioutil.ReadFile(os.Getenv("image_path"))
 	if err != nil {
 		panic(err)
 	}
-	dataReader := bytes.NewBuffer(data)
-	imageToUse, _, err = image.Decode(dataReader)
-	if err != nil {
-		panic(err)
-	}
-	cascadeFileToUse, err = ioutil.ReadFile("./data/facefinder")
+	cascadeFile, err = ioutil.ReadFile(os.Getenv("cascade_file"))
 	if err != nil {
 		panic(err)
 	}
@@ -80,18 +72,28 @@ func init() {
 
 // Handle a serverless request
 func Handle(req http.Request) ([]byte, error) {
-	fd := NewFaceDetector(cascadeFileToUse, 20, 2000, 0.1, 1.1, 0.18)
+	// Create face detector.
+	cf := make([]byte, len(cascadeFile))
+	copy(cf, cascadeFile)
+	fd := NewFaceDetector(cf, 20, 2000, 0.1, 1.1, 0.18)
 
-	faces, err := fd.DetectFaces(imageToUse)
+	// Detect Faces.
+	id := make([]byte, len(imageData))
+	copy(id, imageData)
+	i, _, err := image.Decode(bytes.NewBuffer(id))
 	if err != nil {
-		return []byte(fmt.Sprintf("Error on face detection: %v", err)), err
+		panic(fmt.Sprintf("Error on face detection: %v", err))
+	}
+	faces, err := fd.DetectFaces(i)
+	if err != nil {
+		panic(fmt.Sprintf("Error on face detection: %v", err))
 	}
 
+	// Draw faces.
 	_, _, err = fd.DrawFaces(faces, false)
 	if err != nil {
-		return []byte(fmt.Sprintf("Error creating image output: %s", err)), err
+		panic(fmt.Sprintf("Error creating image output: %s", err))
 	}
-
 	return nil, nil
 }
 

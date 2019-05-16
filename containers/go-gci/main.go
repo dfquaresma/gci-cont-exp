@@ -5,7 +5,7 @@
 package main
 
 import (
-	"handler/function"
+	"github.com/dfquaresma/socc19/gci/function"
 	"net/http"
 	"os"
 )
