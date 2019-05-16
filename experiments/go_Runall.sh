@@ -17,6 +17,6 @@ do
     do
         echo ""
         echo -e "${RED}EXPID ${expid}!${NC}"
-        ID_RSA_PATH=${ID_RSA_PATH} RESULTS_PATH=${RESULTS_PATH} CONTAINER_TAG=${tag} EXPID=${expid}
+        ID_RSA_PATH=${ID_RSA_PATH} RESULTS_PATH=${RESULTS_PATH} CONTAINER_TAG=${tag} EXPID=${expid} bash run.sh
     done
 done
