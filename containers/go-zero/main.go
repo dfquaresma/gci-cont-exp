@@ -5,9 +5,11 @@
 package main
 
 import (
-	"handler/function"
 	"net/http"
 	"os"
+	"runtime/debug"
+
+	"github.com/dfquaresma/socc19/zero/function"
 )
 
 func main() {
