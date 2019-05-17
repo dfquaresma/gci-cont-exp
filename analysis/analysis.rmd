@@ -17,11 +17,11 @@ print_summary_table <- function(runtime_language, nogci, gci, zero) {
   gcierr <- NROW(gci %>% filter(status != 200))
   zeroreq <- (zero %>% filter(status == 200))$request_time
   zeroerr <- NROW(zero %>% filter(status != 200))
-  cat("#fail:", paste(runtime_language, "NG:", sep=""), nogcierr, " | ", 
-      paste(runtime_language, "G:", sep=""), gcierr, " | ", 
+  cat("#fail:", paste(runtime_language, "NG:", sep=""), nogcierr, " | ",
+      paste(runtime_language, "G:", sep=""), gcierr, " | ",
       paste(runtime_language, "ZC:", sep=""), zeroerr,  "\n")
-  cat("#req: ", paste(runtime_language, "NG:", sep=""), NROW(nogcireq), " | ", 
-      paste(runtime_language, "G:", sep=""), NROW(gcireq), " | ", 
+  cat("#req: ", paste(runtime_language, "NG:", sep=""), NROW(nogcireq), " | ",
+      paste(runtime_language, "G:", sep=""), NROW(gcireq), " | ",
       paste(runtime_language, "ZC:", sep=""), NROW(zeroreq), "\n")
   stats <- function(df, tag) {
     p50 = quantileCI::quantile_confint_nyblom(df, 0.5)
@@ -36,8 +36,8 @@ print_summary_table <- function(runtime_language, nogci, gci, zero) {
     cat("95:", signif(p95, digits = 4), " | ")
     cat("99:", signif(p99, digits = 4), " | ")
     cat("99.9:", signif(p999, digits = 4), " | ")
-    cat("99.99:", signif(p9999, digits = 4), " | ") 
-    cat("Dist.Tail.:", signif(p9999-p50, digits = 4)) 
+    cat("99.99:", signif(p9999, digits = 4), " | ")
+    cat("Dist.Tail.:", signif(p9999-p50, digits = 4))
     cat("\n")
   }
   stats(nogcireq, paste(runtime_language, "NG", sep=""))
