@@ -47,29 +47,32 @@ print_summary_table <- function(runtime_language, nogci, gci, zero) {
 
 path <- "./results/"
 
-read.al <- function(runtime_language, type, round) {
-  p <- paste(path, runtime_language, type, "-access-e1", "r", round, ".log", sep="")
+read.al <- function(runtime_language, type, expid) {
+  p <- paste(path, runtime_language, type, "-NGINX-access-e", expid, ".log", sep="")
   df <- read.csv(p, sep=";",header=T, dec=".")
   df$request_time <- df$request_time * 1000
   return(tail(df, -100))
 }
 
 gci <- rbind(
-  read.al("go", "gci", "3"),
-  read.al("go", "gci", "4")
+  read.al("go", "gci", "1"),
+  read.al("go", "gci", "2"),
+  read.al("go", "gci", "3")
 )
 
 nogci <- rbind(
-  read.al("go", "nogci", "3"),
-  read.al("go", "nogci", "4")
+  read.al("go", "nogci", "1"),
+  read.al("go", "nogci", "2"),
+  read.al("go", "nogci", "3")
 )
 
 zero <- rbind(
-  read.al("go", "zero", "3"),
-  read.al("go", "zero", "4")
+  read.al("go", "zero", "1"),
+  read.al("go", "zero", "2"),
+  read.al("go", "zero", "3")
 )
 ```
 # Table: Go Experiment
 ```{r}
-print_summary_table("go", nogci,  gci, zero)  
+print_summary_table("go", nogci,  gci, zero)
 ```
