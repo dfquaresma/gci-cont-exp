@@ -55,12 +55,16 @@ type DetectionResult struct {
 	ImageBase64 string
 }
 
-var imageData []byte
+var imageData image.Image
 var cascadeFile []byte
 
 func init() {
-	var err error
-	imageData, err = ioutil.ReadFile(os.Getenv("image_path"))
+	data, err := ioutil.ReadFile(os.Getenv("image_path"))
+	if err != nil {
+		panic(err)
+	}
+	dataReader := bytes.NewBuffer(data)
+	imageData, _, err = image.Decode(dataReader)
 	if err != nil {
 		panic(err)
 	}
@@ -72,28 +76,18 @@ func init() {
 
 // Handle a serverless request
 func Handle(req http.Request) ([]byte, error) {
-	// Create face detector.
-	cf := make([]byte, len(cascadeFile))
-	copy(cf, cascadeFile)
-	fd := NewFaceDetector(cf, 20, 2000, 0.1, 1.1, 0.18)
+	fd := NewFaceDetector(cascadeFile, 20, 2000, 0.1, 1.1, 0.18)
 
-	// Detect Faces.
-	id := make([]byte, len(imageData))
-	copy(id, imageData)
-	i, _, err := image.Decode(bytes.NewBuffer(id))
+	faces, err := fd.DetectFaces(imageData)
 	if err != nil {
 		panic(fmt.Sprintf("Error on face detection: %v", err))
 	}
-	faces, err := fd.DetectFaces(i)
-	if err != nil {
-		panic(fmt.Sprintf("Error on face detection: %v", err))
-	}
-
-	// Draw faces.
+	
 	_, _, err = fd.DrawFaces(faces, false)
 	if err != nil {
 		panic(fmt.Sprintf("Error creating image output: %s", err))
 	}
+
 	return nil, nil
 }
 
