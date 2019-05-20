@@ -11,9 +11,9 @@ echo "EXPID_START: ${EXPID_START:=4}"
 echo "EXPID_END: ${EXPID_END:=8}"
 echo "GOTAGS: ${GOTAGS:=gogci gonogci gozero}"
 
-for tag in ${GOTAGS};
+for expid in `seq ${EXPID_START} ${EXPID_END}`
 do
-    for expid in `seq ${EXPID_START} ${EXPID_END}`
+    for tag in ${GOTAGS};
     do
         echo ""
         echo -e "${RED}EXPID ${tag} ${expid}!${NC}"
