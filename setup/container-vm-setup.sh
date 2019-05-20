@@ -34,3 +34,4 @@ docker build -t image-gonogci .
 cd /home/ubuntu/socc19/containers/go-zero
 gofmt -s -w main; gofmt -s -w function/handler.go
 docker build -t image-gozero . 
+cd /home/ubuntu/
