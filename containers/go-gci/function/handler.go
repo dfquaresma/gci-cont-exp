@@ -82,7 +82,7 @@ func Handle(req http.Request) ([]byte, error) {
 	if err != nil {
 		panic(fmt.Sprintf("Error on face detection: %v", err))
 	}
-	
+
 	_, _, err = fd.DrawFaces(faces, false)
 	if err != nil {
 		panic(fmt.Sprintf("Error creating image output: %s", err))
