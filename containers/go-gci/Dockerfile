@@ -63,7 +63,7 @@ ENV image_path="/home/app/samples/nasa.jpg"
 ENV cascade_file="/home/app/data/facefinder"
 
 ENV mode="http"
-ENV YOUNG_GEN_SIZE_B="536870912"
+ENV YOUNG_GEN_SIZE_B="268435456"
 ENV HANDLER_PORT="8083"
 ENV PROXY_PORT="8082"
 ENV upstream_url="http://127.0.0.1:${PROXY_PORT}"
