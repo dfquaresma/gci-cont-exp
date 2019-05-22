@@ -63,6 +63,7 @@ ENV mode="http"
 ENV HANDLER_PORT="8082"
 ENV upstream_url="http://127.0.0.1:${HANDLER_PORT}"
 ENV GODEBUG="gctrace=1"
+ENV GOMAXPROCS="1"
 ENV fprocess="./handler"
 EXPOSE 8080
 

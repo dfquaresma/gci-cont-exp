@@ -68,6 +68,7 @@ ENV HANDLER_PORT="8083"
 ENV PROXY_PORT="8082"
 ENV upstream_url="http://127.0.0.1:${PROXY_PORT}"
 ENV GODEBUG="gctrace=1"
+ENV GOMAXPROCS="1"
 ENV fprocess="./handler"
 EXPOSE 8080
 
