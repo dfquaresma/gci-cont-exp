@@ -3,7 +3,7 @@ date
 set -x
 
 LAST_IP_NUMBER="198 218 231 242"
-CONTAINERS="container-gogci container-gonogci container-zero"
+CONTAINERS="container-gogci container-gonogci container-gozero"
 COMMAND="sudo docker kill ${CONTAINERS}" # kill all running containers
 for i in ${LAST_IP_NUMBER}
 do
