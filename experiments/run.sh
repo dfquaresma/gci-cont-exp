@@ -11,17 +11,18 @@ NC='\033[0m'
 echo "ID_RSA_PATH: ${ID_RSA_PATH}"
 echo "RESULTS_PATH: ${RESULTS_PATH}"
 echo "CONTAINER_TAG: ${CONTAINER_TAG}"
+echo "CONTAINER_MEM_LIM: ${CONTAINER_MEM_LIM}"
 echo "RUNTIME: ${RUNTIME}"
 echo "EXPID: ${EXPID}"
 
 # To avoid execution without passing environment variables
-[ ! -z "$ID_RSA_PATH" ] && [ ! -z "$RESULTS_PATH" ] && [ ! -z "$CONTAINER_TAG" ] && [ ! -z "$RUNTIME" ] && [ ! -z "$EXPID" ] || exit
+[ ! -z "$ID_RSA_PATH" ] && [ ! -z "$RESULTS_PATH" ] && [ ! -z "$CONTAINER_TAG" ] && [ ! -z "$CONTAINER_MEM_LIM" ] && [ ! -z "$RUNTIME" ] && [ ! -z "$EXPID" ] || exit
 
 echo -e "${YELLOW}TEARING DOWN CONTAINERS${NC}"
 ID_RSA_PATH=${ID_RSA_PATH} RUNTIME=${RUNTIME} bash tearDownContainers.sh
 
 echo -e "${BLUE}SETTING UP CONTAINERS${NC}"
-ID_RSA_PATH=${ID_RSA_PATH} CONTAINER_TAG=${CONTAINER_TAG} bash setUpContainers.sh
+ID_RSA_PATH=${ID_RSA_PATH} CONTAINER_TAG=${CONTAINER_TAG} CONTAINER_MEM_LIM=${CONTAINER_MEM_LIM} bash setUpContainers.sh
 
 echo -e "${RED}RUNNING WORKLOAD FOR ${CONTAINER_TAG} EXPID ${EXPID}${NC}"
 ID_RSA_PATH=${ID_RSA_PATH} EXPID=${EXPID} bash workload.sh
