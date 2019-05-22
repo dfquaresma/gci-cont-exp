@@ -7,8 +7,8 @@ NC='\033[0m'
 
 echo "ID_RSA_PATH: ${ID_RSA_PATH:=../../id_rsa}"
 echo "RESULTS_PATH: ${RESULTS_PATH:=../analysis/results/}"
-echo "EXPID_START: ${EXPID_START:=4}"
-echo "EXPID_END: ${EXPID_END:=8}"
+echo "EXPID_START: ${EXPID_START:=10}"
+echo "EXPID_END: ${EXPID_END:=19}"
 echo "GOTAGS: ${GOTAGS:=gogci gonogci gozero}"
 
 for expid in `seq ${EXPID_START} ${EXPID_END}`
