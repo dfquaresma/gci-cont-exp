@@ -53,26 +53,11 @@ read.al <- function(runtime_language, type, expid) {
   df$request_time <- df$request_time * 1000
   return(tail(df, -100))
 }
-
-gci <- rbind(
-  read.al("go", "gci", "1"),
-  read.al("go", "gci", "2"),
-  read.al("go", "gci", "3")
-)
-
-nogci <- rbind(
-  read.al("go", "nogci", "1"),
-  read.al("go", "nogci", "2"),
-  read.al("go", "nogci", "3")
-)
-
-zero <- rbind(
-  read.al("go", "zero", "1"),
-  read.al("go", "zero", "2"),
-  read.al("go", "zero", "3")
-)
 ```
 # Table: Go Experiment
 ```{r}
-print_summary_table("go", nogci,  gci, zero)
+gogci <- rbind(read.al("go", "gci", "11"),read.al("go", "gci", "13"),read.al("go", "gci", "14"))
+gonogci <- rbind(read.al("go", "nogci", "11"),read.al("go", "nogci", "13"),read.al("go", "nogci", "14"))
+gozero <- rbind(read.al("go", "zero", "11"),read.al("go", "zero", "13"),read.al("go", "zero", "14"))
+print_summary_table("go", gonogci,  gogci, gozero)
 ```
