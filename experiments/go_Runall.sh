@@ -17,7 +17,7 @@ do
     for tag in ${GOTAGS};
     do
         echo ""
-        echo -e "${RED}EXPID ${tag} ${expid}!${NC}"
+        echo -e "${RED}Running ${tag} EXPID ${expid}!${NC}"
         ID_RSA_PATH=${ID_RSA_PATH} RESULTS_PATH=${RESULTS_PATH} CONTAINER_TAG=${tag} RUNTIME=${RUNTIME} EXPID=${expid} bash run.sh
     done
 done
