@@ -9,6 +9,9 @@ then
   exit
 fi
 
+# Update rest_workload for YCSB execution
+ssh -i ${ID_RSA_PATH}  ubuntu@10.11.4.113 -o StrictHostKeyChecking=no "rm -rf /home/ubuntu/YCSB/workload/rest_workload; curl -sSL https://raw.githubusercontent.com/dfquaresma/socc19/master/setup/rest_workload > /home/ubuntu/YCSB/workloads/rest_workload"
+
 LAST_IP_NUMBER="198 218 231 242"
 COMMAND="sudo bash /home/ubuntu/socc19/setup/update-container.sh"
 for i in ${LAST_IP_NUMBER}
