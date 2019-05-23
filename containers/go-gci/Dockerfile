@@ -56,6 +56,7 @@ COPY --from=builder /handler/handler    .
 COPY --from=builder /handler/gci-proxy  .
 
 RUN chown -R app /home/app
+RUN echo "vm.nr_hugepages=128" > /etc/sysctl.conf
 
 USER app
 
