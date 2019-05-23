@@ -13,7 +13,7 @@ fi
 
 LAST_IP_NUMBER="198 218 231 242"
 CONTAINERS="container-${RUNTIME}gci container-${RUNTIME}nogci container-${RUNTIME}zero"
-COMMAND="sudo docker kill ${CONTAINERS}" # kill all running containers
+COMMAND="sudo docker rm -f ${CONTAINERS}"  # kill all running containers
 for i in ${LAST_IP_NUMBER}
 do
 	ssh-keygen -f "/home/ubuntu/.ssh/known_hosts" -R 10.11.4.${i}
