@@ -25,13 +25,6 @@ systemctl enable docker
 apt -y install golang-go
 git clone https://github.com/dfquaresma/socc19
 chown -R ubuntu socc19/
-cd /home/ubuntu/socc19/containers/go-gci
-gofmt -s -w main; gofmt -s -w function/handler.go
-docker build -t image-gogci . 
-cd /home/ubuntu/socc19/containers/go-nogci
-gofmt -s -w main; gofmt -s -w function/handler.go
-docker build -t image-gonogci . 
-cd /home/ubuntu/socc19/containers/go-zero
-gofmt -s -w main; gofmt -s -w function/handler.go
-docker build -t image-gozero . 
-cd /home/ubuntu/
+
+# Update containers images.
+bash /home/ubuntu/socc19/setup/update-container.sh
