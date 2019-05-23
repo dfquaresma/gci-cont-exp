@@ -20,3 +20,4 @@ do
 	ssh -i ${ID_RSA_PATH}  ubuntu@10.11.4.${i} -o StrictHostKeyChecking=no "${COMMAND}"
 	ssh -i ${ID_RSA_PATH}  ubuntu@10.11.4.${i} -o StrictHostKeyChecking=no "sudo rm -rf /home/ubuntu/*-CONT*-std*-e*.log"
 done
+sleep 10
