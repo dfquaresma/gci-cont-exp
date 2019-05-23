@@ -53,7 +53,6 @@ COPY --from=builder /handler/function/  .
 COPY --from=builder /handler/handler    .
 
 RUN chown -R app /home/app
-RUN echo "vm.nr_hugepages=128" > /etc/sysctl.conf
 
 USER app
 
