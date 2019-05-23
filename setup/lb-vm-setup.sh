@@ -27,8 +27,7 @@ git clone https://github.com/dfquaresma/YCSB
 # Download dependencies
 apt install -y maven
 apt install -y python
-wget https://raw.githubusercontent.com/dfquaresma/socc19/master/setup/rest_workload
-mv rest_workload YCSB/workloads/
+curl -sSL https://raw.githubusercontent.com/dfquaresma/socc19/master/setup/rest_workload > /home/ubuntu/YCSB/workloads/rest_workload
 # Compile only what is needed.
 cd YCSB
 mvn -pl com.yahoo.ycsb:rest-binding -am clean package
