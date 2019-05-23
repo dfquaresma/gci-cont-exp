@@ -9,7 +9,7 @@ echo "ID_RSA_PATH: ${ID_RSA_PATH:=../../id_rsa}"
 echo "RESULTS_PATH: ${RESULTS_PATH:=../analysis/results/}"
 echo "EXPID_START: ${EXPID_START:=0}"
 echo "EXPID_END: ${EXPID_END:=9}"
-echo "GOTAGS: ${GOTAGS:=gogci gonogci gozero}"
+echo "GOTAGS: ${GOTAGS:=gonogci gogci gozero}"
 echo "RUNTIME: ${RUNTIME:=go}"
 echo "CONTAINER_MEM_LIM: ${CONTAINER_MEM_LIM:=128m}"
 
