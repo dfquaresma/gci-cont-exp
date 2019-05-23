@@ -2,6 +2,17 @@
 date
 set -x
 
+RED='\033[1;33m'
+NC='\033[0m'
+
+# To avoid execution without passing environment variables
+if [[ (-z "$ID_RSA_PATH") || (-z "$RESULTS_PATH") ||
+  (-z "$CONTAINER_TAG") || (-z "$EXPID") ]];
+then
+  echo -e "${RED}THERE ARE VARIABLES MISSING: getResults.sh${NC}"
+  exit
+fi
+
 LAST_IP_NUMBER="198 218 231 242"
 for i in ${LAST_IP_NUMBER}
 do

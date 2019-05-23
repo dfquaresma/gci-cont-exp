@@ -2,6 +2,15 @@
 date
 set -x
 
+# To avoid execution without passing environment variables
+if [[ (-z "$ID_RSA_PATH") || (-z "$RESULTS_PATH") ||
+  (-z "$CONTAINER_TAG") || (-z "$CONTAINER_MEM_LIM") ||
+  (-z "$RUNTIME") || (-z "$EXPID") ]];
+then
+  echo -e "${RED}THERE ARE VARIABLES MISSING: tearDownContainers.sh${NC}"
+  exit
+fi
+
 LAST_IP_NUMBER="198 218 231 242"
 CONTAINERS="container-${RUNTIME}gci container-${RUNTIME}nogci container-${RUNTIME}zero"
 COMMAND="sudo docker kill ${CONTAINERS}" # kill all running containers
