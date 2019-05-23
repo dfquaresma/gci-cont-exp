@@ -3,9 +3,6 @@
 date
 set -x
 
-# Get permissions
-sudo su
-
 # Update repository
 cd /home/ubuntu/socc19
 git pull
