@@ -18,7 +18,7 @@ for i in ${LAST_IP_NUMBER}
 do
 	ssh-keygen -f "/home/ubuntu/.ssh/known_hosts" -R 10.11.4.${i}
     COMMAND="sudo docker logs container-${CONTAINER_TAG} >/home/ubuntu/${CONTAINER_TAG}-CONT${i}-stdout-e${EXPID}.log 2>/home/ubuntu/${CONTAINER_TAG}-CONT${i}-stderr-e${EXPID}.log"
-	ssh -i ${ID_RSA_PATH}  ubuntu@10.11.4.${i} -o StrictHostKeyChecking=no "${COMMAND}"
+  	ssh -i ${ID_RSA_PATH}  ubuntu@10.11.4.${i} -o StrictHostKeyChecking=no "${COMMAND}"
     scp -i ${ID_RSA_PATH} -o StrictHostKeyChecking=no ubuntu@10.11.4.${i}:"/home/ubuntu/*-CONT*-std*-e*.log" $RESULTS_PATH
 done
 
