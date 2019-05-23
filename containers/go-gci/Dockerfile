@@ -12,7 +12,7 @@ RUN apk --no-cache add curl git ${ADDITIONAL_PACKAGE} \
     && echo "Pulling watchdog binary and gci-proxy from Github." \
     && curl -sSL https://github.com/openfaas-incubator/of-watchdog/releases/download/$WATCHDOG_VERSION/of-watchdog > /handler/fwatchdog \
     && chmod +x /handler/fwatchdog \
-    && curl -sSL https://github.com/dfquaresma/socc19/raw/master/containers/gci-proxy > /handler/gci-proxy \
+    && curl -sSL https://github.com/dfquaresma/socc19/raw/master/containers/go-gci/gci-proxy > /handler/gci-proxy \
     && chmod +x /handler/gci-proxy
 
 # Force the go compiler to use modules
