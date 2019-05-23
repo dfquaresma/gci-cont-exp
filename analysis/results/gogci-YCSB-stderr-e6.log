@@ -11,6 +11,6 @@ YCSB Client 0.16.0-SNAPSHOT
 
 Loading workload...
 Starting test.
-2019-05-23 06:34:28:130 0 sec: 0 operations; est completion in 0 second 
+2019-05-23 06:52:08:272 0 sec: 0 operations; est completion in 0 second 
 DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
-2019-05-23 06:34:28:989 0 sec: 64 operations; 70.41 current ops/sec; [READ: Count=0, Max=0, Min=9223372036854775807, Avg=NaN, 90=0, 99=0, 99.9=0, 99.99=0] [CLEANUP: Count=1, Max=2, Min=2, Avg=2, 90=2, 99=2, 99.9=2, 99.99=2] [READ-FAILED: Count=64, Max=77183, Min=3020, Avg=6847.14, 90=8103, 99=11575, 99.9=77183, 99.99=77183] 
+2019-05-23 06:52:09:144 0 sec: 64 operations; 68.16 current ops/sec; [READ: Count=0, Max=0, Min=9223372036854775807, Avg=NaN, 90=0, 99=0, 99.9=0, 99.99=0] [CLEANUP: Count=1, Max=2, Min=2, Avg=2, 90=2, 99=2, 99.9=2, 99.99=2] [READ-FAILED: Count=64, Max=81919, Min=3038, Avg=6874.91, 90=7923, 99=20879, 99.9=81919, 99.99=81919] 
