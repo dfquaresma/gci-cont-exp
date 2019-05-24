@@ -1,0 +1,5 @@
+2019/05/23 21:33:03 OperationalMode: http
+2019/05/23 21:33:03 Writing lock-file to: /tmp/.lock
+2019/05/23 21:33:03 Started logging stderr from function.
+2019/05/23 21:33:03 Started logging stdout from function.
+2019/05/23 21:33:03 Metrics server. Port: 8081
