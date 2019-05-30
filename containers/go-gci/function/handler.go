@@ -82,14 +82,12 @@ func Handle(req http.Request) ([]byte, error) {
 	if err != nil {
 		panic(fmt.Sprintf("Error on face detection: %v", err))
 	}
-	
-	var image []byte
-	_, image, err = fd.DrawFaces(faces, false)
-	if err != nil {
+
+	buf := new(bytes.Buffer)
+	if err := jpeg.Encode(buf, fd.DrawFaces(faces, false), nil); err != nil {
 		panic(fmt.Sprintf("Error creating image output: %s", err))
 	}
-
-	return image, nil
+	return buf.Bytes(), nil
 }
 
 // NewFaceDetector initialises the constructor function.
@@ -145,12 +143,10 @@ func (fd *FaceDetector) DetectFaces(img image.Image) ([]pigo.Detection, error) {
 }
 
 // DrawFaces marks the detected faces with a circle in case isCircle is true, otherwise marks with a rectangle.
-func (fd *FaceDetector) DrawFaces(faces []pigo.Detection, isCircle bool) ([]image.Rectangle, []byte, error) {
+func (fd *FaceDetector) DrawFaces(faces []pigo.Detection, isCircle bool) image.Image {
 	var (
 		qThresh float32 = 5.0
-		rects   []image.Rectangle
 	)
-
 	for _, face := range faces {
 		if face.Q > qThresh {
 			if isCircle {
@@ -169,20 +165,10 @@ func (fd *FaceDetector) DrawFaces(faces []pigo.Detection, isCircle bool) ([]imag
 					float64(face.Scale),
 				)
 			}
-			rects = append(rects, image.Rect(
-				face.Col-face.Scale/2,
-				face.Row-face.Scale/2,
-				face.Scale,
-				face.Scale,
-			))
 			dc.SetLineWidth(2.0)
 			dc.SetStrokeStyle(gg.NewSolidPattern(color.RGBA{R: 255, G: 255, B: 0, A: 255}))
 			dc.Stroke()
 		}
 	}
-
-	img := dc.Image()
-	buf := new(bytes.Buffer)
-	err := jpeg.Encode(buf, img, nil)
-	return rects, buf.Bytes(), err
+	return dc.Image()
 }
