@@ -11,7 +11,7 @@ echo "EXPID_START: ${EXPID_START:=0}"
 echo "EXPID_END: ${EXPID_END:=2}"
 echo "GOTAGS: ${GOTAGS:=gonogci gogci gozero}"
 echo "RUNTIME: ${RUNTIME:=go}"
-echo "CONTAINER_MEM_LIM: ${CONTAINER_MEM_LIM:=128m}"
+echo "CONTAINER_MEM_LIM: ${CONTAINER_MEM_LIM:=3g}"
 
 for expid in `seq ${EXPID_START} ${EXPID_END}`
 do
