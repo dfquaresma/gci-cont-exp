@@ -56,8 +56,8 @@ read.al <- function(runtime_language, type, expid) {
 ```
 # Table: Go Experiment
 ```{r}
-gogci <- rbind(read.al("go", "gci", "0"),read.al("go", "gci", "1"))
-gonogci <- rbind(read.al("go", "nogci", "0"),read.al("go", "nogci", "1"))
-gozero <- rbind(read.al("go", "zero", "0"),read.al("go", "zero", "1"))
+gogci <- rbind(read.al("go", "gci", "0"))
+gonogci <- rbind(read.al("go", "nogci", "0"))
+gozero <- rbind(read.al("go", "zero", "0"))
 print_summary_table("go", gonogci,  gogci, gozero)
 ```
