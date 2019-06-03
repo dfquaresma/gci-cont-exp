@@ -5,7 +5,7 @@ set -x
 
 # Update repository
 cd /home/ubuntu/socc19
-git pull
+git pull || exit
 cd /home/ubuntu/
 
 # Update containers images
